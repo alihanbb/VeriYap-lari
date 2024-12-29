@@ -1,0 +1,463 @@
+                                                                           //STACK
+        #region
+        /*
+          Þimdiye kadar gördüðümüz yapýlardan farklý bir veri yapýsý olarak karþýmýza çýkan stacklar, bilgisayarlardaki kullaným alanlarý þu þekildedir;
+          1-)Ýnterruptlar
+          2-)Oyun geliþtirmelerinde
+          3-)Metodlarýn kullanýmýnda
+        
+        Belkide bizi en çok ilgilendiren madde olan 3. maddeyi biraz daha ayrýntýlandýracak olursak;
+        Bir metodun içinde farklý bir metod çaðýrýrsak;
+        Static int Topla(int a,int b)// Burada basit bir metod tanýmladýk
+        {
+            return a+b;
+        }
+         
+        Static void Main(String[] args)
+         {
+            int a = 55;
+            int b = 44;
+            int c = Topla(a,b)//Burda da tanýmladýðýmýz metodu main metodunun içinde çaðýrdýk.
+                              //Bildiðiniz üzere yukarýdan aþaðý çalýþan derleyici bu satýra gelince tanýmlanan metodun adresine gidiyor.
+                              //Metodda iþini bitiren derleyicinin dönüþ adresine ihtiyacý var. Bunu da metoda gitmeden önce döneceði adresi stack'a atarak gideriyor.            
+            Console.WriteLine(c); 
+        }
+        
+        Gelelim stacklarýn oluþturulmasýna ve kullanýmýna.
+        Last in First out veya First in Last out yani son gelenin ilk çýkma prensibine dayalý bir mantýðý olan stacklarý oluþturmak için iki yol vardýr;
+        1-)Diziler
+        2-)Linked listler
+
+        Hangi yolla oluþturulmuþ olunursa olsun stacký yönetmek için iki komutumuz vardýr;
+        1-)Veri aktarmak için -> push
+        2-)Veri çekmek için -> pop 
+        Bu iki komutu ve üzerinde iþlem yapacaðýmýz stack'ý gelin beraber tanýmlayalým
+
+       static int[] stack = new int[100];
+        static int sp = -1; //sp'nin açýlýmý stack pointer olup -1 göstermesini linked listlerdeki blocklarý null'a iþaret ettirmeye benzetebiliriz
+
+        static void push(int data)
+        {
+            if (sp >= stack.Length) return;// stackýmýz alanýndan fazla veri atanýp patlamamasý için önlem aldýk
+            sp++;
+            stack[sp] = data;
+        }
+        static int pop()
+        {
+            if (sp <= -1) return -1;//Yine stackta olmayan verileri çekip patlatmasýn diye önlem aldýk
+            int tmp = stack[sp];
+            sp--;
+            return tmp;
+        }
+
+        Þimdi stackýmýz hazýr push ve pop kumutlarýmýz da hazýr artýk kullanabiliriz
+
+       ÖR:
+        static void Main(string[] args)
+        {
+            push(50);
+            push(100);
+            push(99);
+            Console.WriteLine(pop());
+            Console.WriteLine(pop());
+            Console.WriteLine(pop());
+        }
+        Örnektende anlaþýlacaðý üzere stack'a ilk giren 50 sayýsý en son bastýrýlýr.
+        
+        Stack'a sadece int deðerler atmak zorunda da deðiliz.String karakterlerde atabiliriz
+        ÖR: static void Main(string[] args)
+        {
+            string st = "merhaba";
+            for(int i = 0; i< st.Length ;i++)
+            {
+                push(st[i]);
+            }
+            while(sp!= -1)
+            {
+                Console.WriteLine((char)pop());
+            }
+        }
+        Bu örneði de çalýþtýrýrsak stringimiz olan merhaba yazýsýný tersten görürüz.
+         */
+        #endregion
+
+        //Atilla hocanýn 7. hafta sonunda sorduðu sorular ve çözümleri
+        #region
+        /*
+         1-)Verilen stringin palindromik olup olmadýðýný stacklar yardýmý ile bulunuz 
+         2-)Açýk parantezi kapatma sorusunu stack yardýmý ile çözünüz.(Mantýðý þu þekilde '{[(' þeklinde açýlan parantezleri sýrasýyla kapat)
+         3-)[100,100]'lük,içinde 1 ve 0'lar olan matriste sað,sol,alt,üst þeklinde yan yana olan birler birer blok oluþturmaktadýr.En büyük bloðu bul
+         4-)Bir stack yapýsýnýn her elemanýný head olacak þekilde çiftli linked list baðla.
+         5-)100 eleman bulunan stackta 5. elemaný pop et(Bu soru atilla hocanýn deðil benim aklýma geldi) 
+        
+        ÇÖZÜMLER:
+        1-)Verilen stringin palindromik olup olmadýðýný stacklar yardýmý ile bulunuz
+        static void Main(string[] args)
+        {
+            string st = "mum";
+            int hata = 0;
+            for (int i = 0; i <st.Length ; i++)
+            {
+                push(st[i]);
+            }
+            for (int i = 0; i < st.Length; i++)
+            {
+                if(pop()!=st[i]) { hata = 1;break; }
+            }
+            if (hata == 0) { Console.WriteLine("palindromik"); }
+            else { Console.WriteLine("Palindromik deðil"); }
+        }
+        2-)Açýk parantezi kapatma sorusunu stack yardýmý ile çözünüz.(Mantýðý þu þekilde '{[(' þeklinde açýlan parantezleri sýrasýyla kapat)
+        static void Main(string[] args)
+        {
+            string st = "{{[((()))]}}";
+            int hata = 0;
+            string sol = "([{";
+            string sað = ")]}";
+
+            for (int i = 0; i < st.Length; i++)
+            {
+                int ind = sol.IndexOf(st[i]);
+                if (ind != -1) { push(sað[ind]); }
+                else
+                {
+                    ind = sað.IndexOf(st[i]); 
+                    if(ind!= -1)
+                    {
+                        if(pop()!= st[i]) 
+                        {
+                            hata = 1;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (hata == 0) { Console.WriteLine("Hatasýz"); }
+            else { Console.WriteLine("Hatalý"); }   
+        }
+        4-)Bir stack yapýsýnýn her elemanýný head olacak þekilde çiftli linked list baðla
+         */
+        #endregion
+
+        //Stacklar (devam)
+        #region
+        /*
+         Önceki baþlýkta diziler ile stack oluþturmayý görmüþtük bu kýsýmda stacklarý linked listleri kullanarak oluþturacaðýz.
+         Burada deðiþmeyen þey stackýn iþleme mantýðýdýr yani last in first out olarak bildiðimiz son gelen elemanýn ilk çýktýðý mantýktýr.
+         Stack yapýmýzý linked listler ile oluþtururken dizilerdeki gibi ;
+         1-) Eleman ekleme(push)
+         2-) Eleman silme (pop)
+         Ýþlemlerini kullancaðýz.
+         Hazýrsanýz push metodu ile baþlayalým
+        static Block sp = null; // dizilerde -1 atamamýzla ayný sebepten dolayý stack pointer'a null'ý iþaret ettiriyoruz
+        static void push(int data) 
+        {
+            Block bl = new Block() ;
+            bl.data = data;
+            bl.next = null;
+            bl.prev = null;
+            if(sp == null) 
+            {
+                sp = bl;
+                return;
+            }
+            bl.next = sp;
+            sp.prev = bl;
+            sp = bl;
+        }
+        // Yukarýdaki koddan ve linked listin yapýsýndan da anlayacaðýnýz gibi veri geldikçe stack büyüyor.
+        Artýk verileri ekledik bildiðiniz gibi þimdi de pop etmemiz lazým:
+        static int pop() 
+        {
+            int tmp = sp.data;
+            sp = sp.next;
+            return tmp;
+        }
+        Linked listlerle oluþturulan stacklarda bu kadar.
+        Ancak Atila hoca bir metoddan daha bahsetti bu metodumuzun literatürdeki adý Peek'dir. Peek metodu stacktaki veriyi pop etmeden bakmamýza yarar.
+        peek yaygýn kullanýlan bir ad olup check gibi hatta kontrol gibi isimlendirilebilir.
+        Þimdi peek metodunu yazalým
+        1-)Dizilerde kullanýmý : 
+        static int Peek()
+        {
+            return stack[sp];
+        }
+        2-)Linked listlerde kullanýmý :
+        static int Peek()
+        {
+            return sp.data;
+        }
+
+        Genelce bir toparlayacak olursak stacklar iki þekilde oluþturulur
+        1-)Diziler
+        2-)Linked listler
+
+        Oluþturulan stacklara ;
+        Eleman eklemek için => push();
+        Eleman almak için => pop();
+        Eksiltmeden elemana bakmak için => Peek();
+
+        Metodlarýný kullanýyoruz.
+
+         Stacklardaki son iþleyeceðimiz yer olan matematiksel iþlemlerin sayýya çevrilmesidir.
+         Stacklarýn kullaným alanlarýndan biri olan bu konuda bilgisayarýn verilen formülleri nasýl sayýya çevirdiðini göreceðiz.
+         Mesela : a= b*c/d*(e-f)
+         Formülü verilmiþ olsun bunu bildiðimiz matematiksel üstünlükler çerçevesinde yapmalýyýz.
+         Yani parantez > bölme veya çarpma > toplama veya çýkarma  
+         Eðer üstünlüklerine göre iþlemi yapmazsak sonucu yanlýþ elde ederiz.
+         
+        Bunun için 3 terimi kullanýyoruz
+        1-) Ýnfix => Verilen matematiksel iþlemdir.
+        2-) Postfix => Verilen infix ifadede önce operandlarýn yazýldýðý sonra üstünlüðüne göre operatörlerin yazýlmasýdýr
+        3-) Prefix => Verilen infix ifadede önce operatörlerin yazýlýp sonra operandlarýn yazýlmasýdýr.
+
+        NOT: Prefixi postfixin tersi gibi düþünebiliriz.
+
+        ÖR:a*b infix ifadesini postfixe ve prefixe dönüþtürünüz.
+        postfix => ab*
+        prefix => *ab
+
+        ÖR:a+b*c Ýnfix ifadesini postfixe ve prefixe dönüþtürünüz.
+        Postfix => abc*+
+        Prefix =>  +*abc
+
+        ÖR:a-b+c infix ifadesini postfixe çevir.
+        Postfix => ab-c+
+
+        ÖR:a*b-c infix ifadesini postfixe çevir.
+        Postfix => ab*c-
+
+        ÖR:a+b*c/d-f infix ifadesini postfixe çevir.
+        Postfix => abc*d/+f-
+
+        ÖR:a*b-f/(g-h*j*k+m)-z infix ifadesini postfixe çevir.
+        Postfix => ab*fghj*k*-m+/-z-
+
+        Not: Bazý infixlerin birden fazla postfix ifadesi olabilir.
+        ÖR: a+b+c infix ifadesini postfixe çevir.
+        
+        Postfix => abc++
+        Postfix => ab+c+
+
+        Örnekten de görülebileceði gibi iki postfix ifade de doðrudur.
+
+        Not: Ýnfixten postfixe çevirmeyi öðrendik þimdi postfixten infixe çevirmeye bakalým:
+        Bunun mantýðý bir operatör görene kadar ifadede git ve görünce son iki operandý iþleme dahil et
+
+        ÖR: abc*d/+f- postfix ifadesini infixe çevir.
+        1.Adým: a(b*c)d/+f-
+        2.Adým: a((b*c)/d)+f-
+        3.Adým: (a+((b*c)/d))f-
+        4.Adým: ((a+((b*c)/d))-f) //Okunacak baþka operatör kalmayýnca parantezleri kaldýr
+        5.Adým: a+b*c/d-f
+        
+        Þimdi kodlamasý : 
+
+        static int[] stack = new int[100]; 
+        static int sp = -1;
+        static void push(int data) 
+        {
+            if (sp >= stack.Length) return;
+            sp++;
+            stack[sp] = data;
+        }
+        static int pop() 
+        {
+            if (sp <= -1) return -1;
+            int tmp = stack[sp];
+            sp--;
+            return tmp;
+        } 
+        static int Peek() 
+        {
+            return stack[sp] ;
+        }
+        static void Main(string[] args)
+        {
+            string infix = "a+b*c/d-e";
+            string postfix = "";
+            string op = "$-+/*()";
+            int[] once = { 0, 1, 1, 2, 2 };
+            push((byte)'$');
+            for (int i = 0; i < infix.Length; i++)
+            {
+                if (op.IndexOf(infix[i]) == -1) 
+                {
+                    while (op.IndexOf(infix[i]) ==  -1)
+                    {
+                        postfix += infix[i++];
+                    }
+                    continue;
+                }
+                if (infix[i] == '(') 
+                {
+                    while (Peek()!= (byte)'(')
+                    {
+                        postfix += (char)pop();
+                    }
+                    pop();
+                    continue;
+                }
+                int a = Peek();
+                if (once[op.IndexOf(infix[i])] > once[op.IndexOf((char)a)]) 
+                {
+                    push(infix[i]);
+                }
+                else 
+                {
+                    postfix += (char)pop();
+                }
+            }
+            while (Peek() != (byte)'$') 
+            {
+                postfix += (char)pop();
+            }
+            Console.WriteLine(postfix);
+        /////////////////////////////////////////////////////////////////////
+        Bu da benim nacizane kodlamam (benim kodumda parantezli formuller yok hala geliþtirme aþamasýnda)
+        Console.WriteLine("Formulü Giriniz : ");
+            string infix = Console.ReadLine();
+            string postfix = " ";
+            string op = "+-/*";
+            push((byte)'$');
+            for(int i = 0; i<infix.Length; i++)
+            {
+                if(op.IndexOf(infix[i]) == -1) 
+                {
+                    postfix += infix[i];
+                }
+                else 
+                {
+                    if(infix[i] == '+' || infix[i] == '-') 
+                    {
+                        if(Peek() == '*' || Peek() == '/') 
+                        {
+                            postfix += (char) pop();
+                        }
+                    }
+                    push(infix[i]);
+                }
+            }
+            while (Peek() != (byte)'$')
+            {
+                postfix += (char)pop();
+            }
+            Console.WriteLine(postfix);   
+        }
+     
+         */
+        #endregion
+
+        // Atilla hocanýn 10. hafta sonunda sorduðu sorular ve çözümleri
+        #region
+        /*
+         
+         1-)Postfix ifadeyi infixe çevir 
+         2-)Verilen infix ifade karakter deðil de kelime tabanlý verilirse nasýl çözeriz ? (yani hacim = taban*yükseklik*derinlik vb )
+         3-)Postfix ifadeyi sayýsallaþtýr
+         4-)Verilen infix ifadede üs varsa bunu nasýl çözeriz?(a^b vb.)
+         5-)Verilen infix ifadenin postfixe çevirilebilir mi olduðunu bulunuz.(yani +ac/***d vb. gibi bir formül girilirse bununka nasýl baþ edeceðiz?)
+         ÇÖZÜMLER:
+        1-)Postfix ifadeyi infixe çevir 
+       static int topla(int a ,int b) 
+        {
+            return a + b;
+        }
+        static int cýkar(int a, int b)
+        {
+            return a - b;
+        }
+        static int carp(int a, int b)
+        {
+            return a * b;
+        }
+        static int bol(int a, int b)
+        {
+            return a / b;
+        }
+        static void Main(string[] args)
+        {
+            string postfix = "ab*c+d-";
+            string op = "/+-*";
+            for (int i = 0; i < postfix.Length; i++)
+            {
+                if(op.IndexOf(postfix[i]) == -1) 
+                {
+                    push((byte)postfix[i]);continue;
+                }
+                int op1 = pop();
+                int op2 = pop();
+                int sonuc = 0;
+                if(postfix[i] == '+') 
+                {
+                    sonuc = topla(op1,op2);
+                }
+                else if (postfix[i] == '-')
+                {
+                    sonuc = cýkar(op2, op1);
+                }
+                else if (postfix[i] == '*')
+                {
+                    sonuc = carp(op1, op2);
+                }
+                else if (postfix[i] == '/')
+                {
+                    sonuc = bol(op2, op1);
+                }
+                push(sonuc);
+            }
+            Console.WriteLine(pop()) ;
+        3-)Postfix ifadeyi sayýsallaþtýr
+         static int topla(int a ,int b) 
+        {
+            return a + b;
+        }
+        static int cýkar(int a, int b)
+        {
+            return a - b;
+        }
+        static int carp(int a, int b)
+        {
+            return a * b;
+        }
+        static int bol(int a, int b)
+        {
+            return a / b;
+        }
+.       static void Main(string[] args)
+        {
+            string postfix = "ab*c+d-";
+            string degiþken = "abcd";
+            int[] deger = { 1, 1, 1, 1 };//deðiþkenlere deðer atadýk kullanýcýdan da alýnabilirdi
+            string op = "/+-*";
+            for (int i = 0; i < postfix.Length; i++)
+            {
+                if(op.IndexOf(postfix[i]) == -1) 
+                {
+                    int ýndýs = degiþken.IndexOf(postfix[i]);
+                    push(deger[ýndýs]);continue;
+                }
+                int op1 = pop();
+                int op2 = pop();
+                int sonuc = 0;
+                if(postfix[i] == '+') 
+                {
+                    sonuc = topla(op1,op2);
+                }
+                else if (postfix[i] == '-')
+                {
+                    sonuc = cýkar(op2, op1);
+                }
+                else if (postfix[i] == '*')
+                {
+                    sonuc = carp(op1, op2);
+                }
+                else if (postfix[i] == '/')
+                {
+                    sonuc = bol(op2, op1);
+                }
+                push(sonuc);
+            }
+            Console.WriteLine(pop()) ;
+         */
+        #endregion

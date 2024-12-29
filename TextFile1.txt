@@ -1,0 +1,7 @@
+                                                                        
+                                                                        Hashing Yapýlarý
+
+                                                                        Hash yapýlarý diziler üzerine kuruludur.
+
+                                                                           static int[] hash = new int[100];
+
